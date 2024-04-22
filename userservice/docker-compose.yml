@@ -1,0 +1,27 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: ./management
+    command: gunicorn management.wsgi --bind 0.0.0.0:8000
+    ports:
+      - '8000:8000'
+  frontend:
+    build:
+      context: ./front-react/frontend-project
+    volumes:
+      - react_build:/front-react/dist
+    stdin_open: true
+    
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:8080 
+    volumes:
+      - ./nginx/nginx-setup.conf:/etc/nginx/conf.d/default.conf:ro
+      - react_build:/var/www/front-react
+    depends_on:
+      - backend
+      - frontend
+volumes:
+  react_build:
